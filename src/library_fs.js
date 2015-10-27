@@ -1596,6 +1596,8 @@ mergeInto(LibraryManager.library, {
         var datalength = Number(xhr.getResponseHeader("Content-length"));
         var header;
         var hasByteServing = (header = xhr.getResponseHeader("Accept-Ranges")) && header === "bytes";
+        var usesGzip = (header = xhr.getResponseHeader("Content-Encoding")) && header === "gzip";
+
 #if SMALL_XHR_CHUNKS
         var chunkSize = 1024; // Chunk size in bytes
 #else
@@ -1642,6 +1644,14 @@ mergeInto(LibraryManager.library, {
 
         this._length = datalength;
         this._chunkSize = chunkSize;
+
+        if (usesGzip) {
+          // if the server uses gzip, we have to download the whole file to get the (uncompressed) length
+          chunkSize = datalength;
+          this._length=this.getter(0).length;
+          this._chunkSize = this._length;
+        }
+
         this.lengthKnown = true;
       }
       if (typeof XMLHttpRequest !== 'undefined') {
