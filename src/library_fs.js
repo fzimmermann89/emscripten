@@ -1642,17 +1642,16 @@ mergeInto(LibraryManager.library, {
           return lazyArray.chunks[chunkNum];
         });
 
-        this._length = datalength;
-        this._chunkSize = chunkSize;
-
-        if (usesGzip) {
-          // if the server uses gzip, we have to download the whole file to get the (uncompressed) length
+        if (usesGzip || !datalength) {
+          // if the server uses gzip or doesn't supply the length, we have to download the whole file to get the (uncompressed) length
+          chunkSize = datalength = 1; // this will force getter(0)/doXHR do download the whole file
+          datalength = this.getter(0).length;
           chunkSize = datalength;
-          this._length=this.getter(0).length;
-          this._chunkSize = this._length;
           console.log("LazyFiles on gzip forces download of the whole file when length is accessed");
         }
 
+        this._length = datalength;
+        this._chunkSize = chunkSize;
         this.lengthKnown = true;
       }
       if (typeof XMLHttpRequest !== 'undefined') {
