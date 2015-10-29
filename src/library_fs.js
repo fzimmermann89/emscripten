@@ -1650,6 +1650,7 @@ mergeInto(LibraryManager.library, {
           chunkSize = datalength;
           this._length=this.getter(0).length;
           this._chunkSize = this._length;
+          console.log("LazyFiles on gzip forces download of the whole file when length is accessed");
         }
 
         this.lengthKnown = true;
